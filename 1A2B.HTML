@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1A2B 猜數字遊戲</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 400px;
+        }
+        .game-controls {
+            margin: 15px 0;
+        }
+        input {
+            padding: 5px;
+            font-size: 16px;
+            width: 100px;
+        }
+        button {
+            padding: 6px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .history {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>1A2B 猜數字遊戲</h2>
+    <p>遊戲規則：猜一組 4 位數不重複的數字（包含 0 開頭）。</p>
+    
+    <div class="game-controls">
+        <input type="text" id="guessInput" maxlength="4" placeholder="輸入4個數字">
+        <button onclick="checkGuess()">猜！</button>
+        <button onclick="initGame()">重新開始</button>
+    </div>
+
+    <div id="message"></div>
+
+  <div class="history-container">
+    <h3>歷史紀錄：</h3>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>次數</th>
+                <th>猜測數字</th>
+                <th>結果</th>
+            </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+    </table>
+</div>
+
+<script>
+    let answer = "";
+    let guessCount = 0; 
+
+    // 初始化遊戲
+    function initGame() {
+        let digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+        let result = "";
+        
+        for (let i = 0; i < 4; i++) {
+            let randomIndex = Math.floor(Math.random() * digits.length);
+            result += digits[randomIndex];
+            digits.splice(randomIndex, 1);
+        }
+        
+        answer = result;
+        guessCount = 0; 
+        
+        document.getElementById("historyBody").innerHTML = "";
+        document.getElementById("message").innerHTML = "新局開始！";
+        document.getElementById("message").className = "";
+        document.getElementById("guessInput").value = "";
+        document.getElementById("guessInput").disabled = false;
+    }
+
+    // 檢查答案
+    function checkGuess() {
+        let inputField = document.getElementById("guessInput");
+        let guess = inputField.value.trim();
+        let messageElement = document.getElementById("message");
+        let historyBody = document.getElementById("historyBody");
+
+        if (guess.length !== 4 || isNaN(guess)) {
+            alert("請輸入 4 個數字！");
+            return;
+        }
+
+        let uniqueCheck = new Set(guess);
+        if (uniqueCheck.size !== 4) {
+            alert("數字不能重複！");
+            return;
+        }
+
+        guessCount++; 
+        let aCount = 0;
+        let bCount = 0;
+
+        for (let i = 0; i < 4; i++) {
+            if (guess[i] === answer[i]) {
+                aCount++;
+            } else if (answer.includes(guess[i])) {
+                bCount++;
+            }
+        }
+
+        let resultSign = `${aCount}A${bCount}B`;
+        
+        let row = document.createElement("tr");
+        row.innerHTML = `<td>${guessCount}</td><td>${guess}</td><td>${resultSign}</td>`;
+        historyBody.appendChild(row);
+
+        inputField.value = "";
+
+        if (aCount === 4) {
+            messageElement.innerText = `答對了！答案是 ${answer}`;
+            messageElement.className = "success"; 
+            inputField.disabled = true;
+        } else {
+            messageElement.innerText = "再試一次！";
+        }
+    }
+
+    window.onload = initGame;
+</script>
+
+</body>
+</html>
